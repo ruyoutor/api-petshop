@@ -7,6 +7,7 @@ const CampoInvalido = require('./erros/CampoInvalido');
 const DadosNaoFornecidos = require('./erros/DadosNaoFornecidos');
 const ConteudoNaoSuportado = require('./erros/ConteudoNaoSuportado');
 const formatosAceitos = require('./Serializador').formatosAceitos
+const SerializadorErro = require('./Serializador').serializadorErro
 const instancia = require('./banco-de-dados');
 
 app.use(express.json());
@@ -44,9 +45,13 @@ app.use( (error, req, res, proximo) => {
         status = 406
     }
 
+    const serializador = new SerializadorErro(
+        res.getHeader('Content-Type')
+    )
+
     res.status(status)
     res.send(
-        JSON.stringify({
+        serializador.serializar({
             mensagem: error.message,
             id: error.idErro
         })
